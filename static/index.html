@@ -66,13 +66,7 @@ async function predict() {
     try {
 
         const response = await fetch(
-            "https://spam-message-detector-j7k0.onrender.com/
-            
-            
-            
-            
-            
-            ",
+            "https://spam-message-detector-j7k0.onrender.com/predict",
             {
                 method: "POST",
                 headers: {
@@ -85,13 +79,7 @@ async function predict() {
         );
 
         const data = await response.json();
-        const 
-        
-        
-        
-        
-        
-        ion =
+        const ion =
             String(data.prediction).toLowerCase();
 
         if (
