@@ -10,6 +10,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 model = joblib.load("naive_bayes_model.pkl")
 vectorizer = joblib.load("tfidf_vectorizer.pkl")
 @app.post("/predict")
