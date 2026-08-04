@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Classifier</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --text: #fff;
+            --muted: #999;
+            --border: #d9e1ee;
+            --success: #118a5a;
+            --danger: #c43d3d;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background: black;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            line-height: 1.15;
+        }
+
+        p {
+            margin: 0 0 20px;
+            color: grey;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 170px;
+            resize: vertical;
+            padding: 14px 16px;
+            border: 1px solid grey;
+            border-radius: 14px;
+            font: inherit;
+            line-height: 1.5;
+            background: none;
+            width: 80%;
+            color: white;
+        }
+
+        button {
+            border-radius: 999px;
+            padding: 12px 20px;
+            background: white;
+            color: rgb(0, 0, 0);
+         }
+
+        .result {
+            margin-top: 20px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #383939;
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .result.spam {
+            background: rgba(196, 61, 61, 0.08);
+            border-color: rgba(196, 61, 61, 0.18);
+            color: var(--danger);
+        }
+
+        .result.safe {
+            background: rgba(17, 138, 90, 0.08);
+            border-color: rgba(17, 138, 90, 0.18);
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+        <p>Spam Detector</p>
+        <h1>Check a message</h1>
+        <p>Paste a text message and get a simple human-friendly result.</p>
+
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="Type or paste a message here..."></textarea>
+
+        <div class="actions">
+            <button id="predictBtn" onclick="predict()">Check message</button>
+            <span class="hint">Fast, clean, and easy to read.</span>
+        </div>
+
+        <div id="result" class="result">Your result will appear here.</div>
+
+    <script>
+        async function predict() {
+            const button = document.getElementById("predictBtn");
+            const resultEl = document.getElementById("result");
+            const message = document.getElementById("message").value;
+
+            if (!message.trim()) {
+                resultEl.className = "result";
+                resultEl.innerText = "Please enter a message first.";
+                return;
+            }
+
+            button.disabled = true;
+            resultEl.className = "result";
+            resultEl.innerText = "Checking message...";
+
+            try {
+                const response = await fetch("http://localhost:8000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                const prediction = String(data.prediction || "").toLowerCase();
+                const isSpam = prediction.includes("spam") || prediction === "1" || prediction === "true";
+
+                resultEl.className = isSpam ? "result spam" : "result safe";
+                resultEl.innerText = isSpam ? "This is spam." : "This is not spam.";
+            } catch (error) {
+                resultEl.className = "result";
+                resultEl.innerText = "Something went wrong while checking the message.";
+            } finally {
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
